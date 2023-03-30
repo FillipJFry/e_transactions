@@ -1,4 +1,4 @@
-package com.goit.fry.jdbc;
+package com.goit.fry.transactions;
 
 import java.util.Calendar;
 

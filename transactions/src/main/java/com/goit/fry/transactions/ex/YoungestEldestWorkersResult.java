@@ -1,6 +1,6 @@
-package com.goit.fry.jdbc.ex;
+package com.goit.fry.transactions.ex;
 
-import com.goit.fry.jdbc.YoungestEldestWorkers;
+import com.goit.fry.transactions.YoungestEldestWorkers;
 
 import java.sql.Date;
 import java.sql.ResultSet;

@@ -1,4 +1,4 @@
-package com.goit.fry.jdbc.ex;
+package com.goit.fry.transactions.ex;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

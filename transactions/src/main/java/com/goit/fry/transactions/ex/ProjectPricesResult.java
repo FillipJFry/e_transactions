@@ -1,6 +1,6 @@
-package com.goit.fry.jdbc.ex;
+package com.goit.fry.transactions.ex;
 
-import com.goit.fry.jdbc.ProjectPrices;
+import com.goit.fry.transactions.ProjectPrices;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

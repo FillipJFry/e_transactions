@@ -1,4 +1,4 @@
-package com.goit.fry.jdbc;
+package com.goit.fry.transactions;
 
 public class MaxProjectsClient {
 	private final String name;

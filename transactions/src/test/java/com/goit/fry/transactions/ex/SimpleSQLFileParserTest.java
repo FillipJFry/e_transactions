@@ -1,9 +1,8 @@
-package com.goit.fry.jdbc;
+package com.goit.fry.transactions.ex;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
 
-import com.goit.fry.jdbc.ex.SimpleSQLFileParser;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

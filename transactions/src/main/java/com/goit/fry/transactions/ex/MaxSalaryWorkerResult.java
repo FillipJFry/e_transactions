@@ -1,6 +1,6 @@
-package com.goit.fry.jdbc.ex;
+package com.goit.fry.transactions.ex;
 
-import com.goit.fry.jdbc.MaxSalaryWorker;
+import com.goit.fry.transactions.MaxSalaryWorker;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

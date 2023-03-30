@@ -1,6 +1,7 @@
-package com.goit.fry.jdbc.ex;
+package com.goit.fry.transactions.ex;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -9,7 +10,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.goit.fry.jdbc.Database;
+import com.goit.fry.transactions.Database;
 import org.apache.logging.log4j.Logger;
 
 public class SQLExecutionHelper {
@@ -115,8 +116,10 @@ public class SQLExecutionHelper {
 
 	private BufferedReader getReaderFromResource(String path) {
 
-		return new BufferedReader(
-				new InputStreamReader(
-						SQLExecutionHelper.class.getResourceAsStream("/" + path)));
+		InputStream r = SQLExecutionHelper.class.getResourceAsStream("/" + path);
+		if (r == null)
+			throw new NullPointerException("No such resource: " + path);
+
+		return new BufferedReader(new InputStreamReader(r));
 	}
 }

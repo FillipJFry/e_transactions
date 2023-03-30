@@ -1,6 +1,6 @@
-package com.goit.fry.jdbc.ex;
+package com.goit.fry.transactions.ex;
 
-import com.goit.fry.jdbc.MaxProjectsClient;
+import com.goit.fry.transactions.MaxProjectsClient;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

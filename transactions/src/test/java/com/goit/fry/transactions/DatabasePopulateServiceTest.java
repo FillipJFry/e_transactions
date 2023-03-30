@@ -1,4 +1,4 @@
-package com.goit.fry.jdbc;
+package com.goit.fry.transactions;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

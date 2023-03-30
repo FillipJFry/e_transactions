@@ -1,4 +1,4 @@
-package com.goit.fry.jdbc.ex;
+package com.goit.fry.transactions.ex;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

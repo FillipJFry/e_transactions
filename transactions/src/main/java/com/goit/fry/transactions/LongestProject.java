@@ -1,4 +1,4 @@
-package com.goit.fry.jdbc;
+package com.goit.fry.transactions;
 
 public class LongestProject {
 	private final String name;
