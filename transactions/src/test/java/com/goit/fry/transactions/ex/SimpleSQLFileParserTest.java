@@ -137,12 +137,30 @@ class SimpleSQLFileParserTest {
 	}
 
 	@Test
+	void parseIncorrectFile_1line() {
+
+		String query = "CREATE TABLE t1(DROP TABLE , SELECT );";
+		SimpleSQLFileParser parser = new SimpleSQLFileParser();
+		assertTrue(parser.addPattern("CREATE TABLE ", "(DROP TABLE )|(SELECT)", null));
+
+		try (BufferedReader in = new BufferedReader(new StringReader(query))) {
+
+			assertThrows(Exception.class, () -> parser.findNext(in));
+		}
+		catch (Exception e) {
+
+			assertNull(e);
+			System.err.println(e.getMessage());
+		}
+	}
+
+	@Test
 	void parseIncorrectFile_2lines() {
 
 		String query = "CREATE TABLE t1(\nid INT PRIMARY KEY)\n" +
 						"DROP TABLE t1;";
 		SimpleSQLFileParser parser = new SimpleSQLFileParser();
-		assertTrue(parser.addPattern("CREATE TABLE "));
+		assertTrue(parser.addPattern("CREATE TABLE ", "DROP TABLE ", null));
 		assertTrue(parser.addPattern("DROP TABLE "));
 
 		try (BufferedReader in = new BufferedReader(new StringReader(query))) {
