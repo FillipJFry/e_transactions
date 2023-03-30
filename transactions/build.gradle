@@ -1,0 +1,24 @@
+plugins {
+
+    id 'application'
+}
+
+repositories {
+
+    mavenCentral()
+}
+
+dependencies {
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+}
+
+application {
+
+    mainClass = 'com.goit.fry.transactions.App'
+}
+
+tasks.named('test') {
+
+    useJUnitPlatform()
+}
