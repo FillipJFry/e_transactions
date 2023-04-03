@@ -24,14 +24,14 @@ public class SimpleSQLFileParser {
 		sqlCmdEol = Pattern.compile("[^;]*;");
 	}
 
-	public boolean addPattern(String patternStr, String patternExclude, IAction action) {
+	public boolean addPattern(String patternStr, String patternExclude, ISQLExecutor executor) {
 
 		assert patternStr != null;
 
 		PatternItem prev = patterns.putIfAbsent(patternStr,
 				new PatternItem(Pattern.compile(patternStr),
 								patternExclude != null ?
-										Pattern.compile(patternExclude) : null, action));
+										Pattern.compile(patternExclude) : null, executor));
 		if (prev != null)
 			logger.warn("the pattern has already been added: " + patternStr);
 
@@ -43,7 +43,7 @@ public class SimpleSQLFileParser {
 		return addPattern(patternStr, null, null);
 	}
 
-	public SQLCommand findNextEx(BufferedReader reader) throws Exception {
+	public SQLCommandData findNextEx(BufferedReader reader) throws Exception {
 
 		Map.Entry<String, PatternItem> data = findLineMatchingPattern(reader);
 		if (data == null) return null;
@@ -56,8 +56,11 @@ public class SimpleSQLFileParser {
 
 		Matcher mEol = sqlCmdEol.matcher(line);
 		Matcher mExcl = pattern_exclude != null ? pattern_exclude.matcher(line) : null;
-		while (!mEol.find() && (mExcl == null || !mExcl.find()) &&
-				(line = reader.readLine()) != null) {
+		int row = 0;
+		boolean exclFound;
+		while (!(exclFound = mExcl != null && mExcl.find() &&
+							(row > 0 || mExcl.start() > 0)) &&
+				!mEol.find() && (line = reader.readLine()) != null) {
 
 			line = line.trim();
 			sqlCommand.append(line);
@@ -65,20 +68,21 @@ public class SimpleSQLFileParser {
 
 			mEol.reset(line);
 			if (mExcl != null) mExcl.reset(line);
+			row++;
 		}
 		if (line == null)
 			throw new Exception("no semicolon at the end: " + sqlCommand);
-		if (mExcl != null && mExcl.find())
-			throw new Exception("wrong SQL-command: " +
+		if (exclFound)
+				throw new Exception("wrong SQL-command: " +
 					sqlCommand + line + ". Probably semicolon is missing");
 
-		return new SQLCommand(sqlCommand.toString(), data.getValue().pattern,
-								data.getValue().action);
+		return new SQLCommandData(sqlCommand.toString(), data.getValue().pattern,
+								data.getValue().executor);
 	}
 
 	public String findNext(BufferedReader reader) throws Exception {
 
-		SQLCommand c = findNextEx(reader);
+		SQLCommandData c = findNextEx(reader);
 		return c != null ? c.command : null;
 	}
 
@@ -125,13 +129,13 @@ public class SimpleSQLFileParser {
 
 		final Pattern pattern;
 		Pattern pattern_exclude;
-		IAction action;
+		ISQLExecutor executor;
 
-		PatternItem(Pattern pattern, Pattern pattern_exclude, IAction action) {
+		PatternItem(Pattern pattern, Pattern pattern_exclude, ISQLExecutor executor) {
 
 			this.pattern = pattern;
 			this.pattern_exclude = pattern_exclude;
-			this.action = action;
+			this.executor = executor;
 		}
 	}
 }

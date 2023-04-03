@@ -1,6 +1,7 @@
-package com.goit.fry.transactions.ex;
+package com.goit.fry.transactions.results;
 
 import com.goit.fry.transactions.YoungestEldestWorkers;
+import com.goit.fry.transactions.ex.QueryResultBase;
 
 import java.sql.Date;
 import java.sql.ResultSet;

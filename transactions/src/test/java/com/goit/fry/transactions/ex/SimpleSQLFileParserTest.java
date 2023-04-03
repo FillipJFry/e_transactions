@@ -36,7 +36,7 @@ class SimpleSQLFileParserTest {
 	}
 
 	@Test
-	void parseCorrectFile_oneline_cmd() {
+	void parseCorrectFile_1line_cmd() {
 
 		String query = "CREATE TABLE t1(id INT PRIMARY KEY);";
 		SimpleSQLFileParser parser = new SimpleSQLFileParser();
@@ -44,6 +44,29 @@ class SimpleSQLFileParserTest {
 
 		try (BufferedReader in = new BufferedReader(new StringReader(query))) {
 
+			assertEquals(query, parser.findNext(in));
+		}
+		catch (Exception e) {
+
+			assertNull(e);
+			System.err.println(e.getMessage());
+		}
+	}
+
+	@Test
+	void parseCorrectFile_2lines_cmd() {
+
+		String query = "INSERT INTO project VALUES\n" +
+				" (1, 'Strong XOR cryptography', @simon, '2023-01-01', '2023-07-31'),\n" +
+				" (2, 'Windows 12', @microsoft, '2023-01-01', '2023-07-31');";
+		SimpleSQLFileParser parser = new SimpleSQLFileParser();
+		assertTrue(parser.addPattern("INSERT INTO ([a-z_]+) VALUES *",
+									"(INSERT INTO)|(DELETE FROM )|(CREATE )|(BEGIN)", null));
+
+		try (BufferedReader in = new BufferedReader(new StringReader(query))) {
+
+			query = query.replace("\n", " ");
+			query = query.replace("  ", " ");
 			assertEquals(query, parser.findNext(in));
 		}
 		catch (Exception e) {
@@ -162,6 +185,27 @@ class SimpleSQLFileParserTest {
 		SimpleSQLFileParser parser = new SimpleSQLFileParser();
 		assertTrue(parser.addPattern("CREATE TABLE ", "DROP TABLE ", null));
 		assertTrue(parser.addPattern("DROP TABLE "));
+
+		try (BufferedReader in = new BufferedReader(new StringReader(query))) {
+
+			assertThrows(Exception.class, () -> parser.findNext(in));
+		}
+		catch (Exception e) {
+
+			assertNull(e);
+			System.err.println(e.getMessage());
+		}
+	}
+
+	@Test
+	void parseIncorrectFile_2lines_wrong_cmd() {
+
+		String query = "INSERT INTO project VALUES\n" +
+				"INSERT INTO (1, 'Strong XOR cryptography', @simon, '2023-01-01', '2023-07-31'),\n" +
+				" (2, 'Windows 12', @microsoft, '2023-01-01', '2023-07-31');";
+		SimpleSQLFileParser parser = new SimpleSQLFileParser();
+		assertTrue(parser.addPattern("INSERT INTO ([a-z_]+) VALUES *",
+				"(INSERT INTO)|(DELETE FROM )|(CREATE )|(BEGIN)", null));
 
 		try (BufferedReader in = new BufferedReader(new StringReader(query))) {
 

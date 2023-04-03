@@ -2,16 +2,16 @@ package com.goit.fry.transactions.ex;
 
 import java.util.regex.Pattern;
 
-public class SQLCommand {
+public class SQLCommandData {
 
 	public final String command;
 	public final Pattern pattern;
-	public final IAction action;
+	public final ISQLExecutor executor;
 
-	public SQLCommand(String command, Pattern pattern, IAction action) {
+	public SQLCommandData(String command, Pattern pattern, ISQLExecutor executor) {
 
 		this.command = command;
 		this.pattern = pattern;
-		this.action = action;
+		this.executor = executor;
 	}
 }

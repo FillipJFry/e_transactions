@@ -17,6 +17,10 @@ public class SQLExecutionHelper {
 
 	private static final int MAX_LEN = 50;
 	private final SimpleSQLFileParser parser;
+	private ScalarExecutor scalarExecutor;
+	private ParametrizedInsertExecutor paramInsertExecutor;
+	private TransactionExecutor transactionExecutor;
+	private SetVarExecutor setVarExecutor;
 	private final Logger logger;
 
 	public SQLExecutionHelper(Logger logger) {
@@ -27,15 +31,15 @@ public class SQLExecutionHelper {
 
 	public void addDDLPatterns() {
 
-		parser.addPattern("CREATE TABLE ");
-		parser.addPattern("DROP TABLE ");
-		parser.addPattern("ALTER TABLE ");
+		parser.addPattern("CREATE TABLE ", "(DROP)|(ALTER)", null);
+		parser.addPattern("DROP TABLE ", "(CREATE)|(ALTER)", null);
+		parser.addPattern("ALTER TABLE ", "(CREATE)|(DROP)", null);
 	}
 
 	public void addDMLUpdatePatterns() {
 
-		parser.addPattern("DELETE FROM ");
-		parser.addPattern("INSERT INTO ");
+		addPatternWithDefExecutor("DELETE FROM ", "(INSERT INTO )|(SELECT)");
+		addPatternWithDefExecutor("INSERT INTO ([a-z_]+) *$", "(DELETE FROM )");
 	}
 
 	public void addDMLSelectPattern() {
@@ -46,6 +50,60 @@ public class SQLExecutionHelper {
 	public boolean addPattern(String pattern_str) {
 
 		return parser.addPattern(pattern_str);
+	}
+
+	public boolean addPattern(String pattern_str, String patternExclude) {
+
+		return parser.addPattern(pattern_str, patternExclude, null);
+	}
+
+	public void addPatternWithDefExecutor(String pattern_str, String patternExclude) {
+
+		if (scalarExecutor == null)
+			scalarExecutor = new ScalarExecutor();
+		parser.addPattern(pattern_str, patternExclude, scalarExecutor);
+	}
+
+	public void addPatternWithDefExecutor(String pattern_str) {
+
+		addPatternWithDefExecutor(pattern_str, null);
+	}
+
+	public void addParametrizedInsertPattern() {
+
+		if (paramInsertExecutor == null)
+			paramInsertExecutor = new ParametrizedInsertExecutor();
+
+		parser.addPattern(ParametrizedInsertExecutor.str_pattern,
+				"(INSERT INTO)|(DELETE FROM )|(CREATE )|(BEGIN)",
+							paramInsertExecutor);
+	}
+
+	public void addRecordBinder(String table_name, IRecordBinder binder) {
+
+		if (paramInsertExecutor == null)
+			paramInsertExecutor = new ParametrizedInsertExecutor();
+
+		paramInsertExecutor.addTableRecordBinder(table_name, binder);
+	}
+
+	public void addTransactionalPattern() {
+
+		if (transactionExecutor == null)
+			transactionExecutor = new TransactionExecutor();
+
+		parser.addPattern("(BEGIN TRANSACTION;)|(COMMIT;)", null,
+									transactionExecutor);
+	}
+
+	public void addSetVarPattern() {
+
+		if (setVarExecutor == null)
+			setVarExecutor = new SetVarExecutor();
+
+		parser.addPattern("SET @[a-zA-Z_]+ = ",
+				"(INSERT INTO)|(DELETE FROM )|(CREATE )|(BEGIN)",
+							setVarExecutor);
 	}
 
 	public String loadCommand(String sqlFilePath) throws Exception {
@@ -112,6 +170,34 @@ public class SQLExecutionHelper {
 				}
 			}
 		}
+	}
+
+	public void loadAndExecute(String sqlFilePath) throws Exception {
+
+		logger.info("loading and executing commands from the file: " + sqlFilePath);
+		try (BufferedReader in = getReaderFromResource(sqlFilePath)) {
+
+			try (Connection conn = Database.getInstance().getConnection()) {
+				initExecutors(conn);
+
+				try (TransactionGuard guard = new TransactionGuard(transactionExecutor)) {
+					SQLCommandData cmd_data;
+					while ((cmd_data = parser.findNextEx(in)) != null) {
+						assert cmd_data.executor != null;
+						cmd_data.executor.execute(cmd_data.command);
+					}
+				}
+			}
+		}
+		logger.info(sqlFilePath + " - execution is finished");
+	}
+
+	void initExecutors(Connection conn) {
+
+		scalarExecutor.initConnection(conn);
+		paramInsertExecutor.initConnection(conn);
+		transactionExecutor.initConnection(conn);
+		setVarExecutor.initConnection(conn);
 	}
 
 	private BufferedReader getReaderFromResource(String path) {
