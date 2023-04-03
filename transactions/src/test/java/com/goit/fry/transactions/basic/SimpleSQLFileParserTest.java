@@ -1,4 +1,4 @@
-package com.goit.fry.transactions.ex;
+package com.goit.fry.transactions.basic;
 
 import java.io.BufferedReader;
 import java.io.StringReader;

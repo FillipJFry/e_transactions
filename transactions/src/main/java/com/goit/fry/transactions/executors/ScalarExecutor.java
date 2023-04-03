@@ -1,5 +1,6 @@
-package com.goit.fry.transactions.ex;
+package com.goit.fry.transactions.executors;
 
+import com.goit.fry.transactions.basic.ISQLExecutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

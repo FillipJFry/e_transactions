@@ -1,10 +1,8 @@
 package com.goit.fry.transactions;
 
-import com.goit.fry.transactions.binders.ClientsBinder;
-import com.goit.fry.transactions.binders.ProjWorkerNameBinder;
-import com.goit.fry.transactions.binders.ProjectsBinder;
-import com.goit.fry.transactions.binders.WorkersBinder;
-import com.goit.fry.transactions.ex.SQLExecutionHelper;
+import com.goit.fry.transactions.basic.*;
+import com.goit.fry.transactions.binders.*;
+import com.goit.fry.transactions.executors.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,21 +12,29 @@ public class DatabasePopulateService {
 
 	public static void main(String[] args) {
 
+		ScalarExecutor scalarExecutor = new ScalarExecutor();
+		ParametrizedInsertExecutor paramInsertExecutor = new ParametrizedInsertExecutor();
+		SetVarExecutor setVarExecutor = new SetVarExecutor();
+
+		paramInsertExecutor.addTableRecordBinder("worker", new WorkersBinder());
+		paramInsertExecutor.addTableRecordBinder("client", new ClientsBinder());
+		paramInsertExecutor.addTableRecordBinder("project", new ProjectsBinder());
+		paramInsertExecutor.addTableRecordBinder("proj_worker_name", new ProjWorkerNameBinder());
+
 		SQLExecutionHelper sqlExecutionHelper = new SQLExecutionHelper(logger);
-		sqlExecutionHelper.addDMLUpdatePatterns();
-		sqlExecutionHelper.addPatternWithDefExecutor("CREATE UNIQUE INDEX ");
-		sqlExecutionHelper.addPatternWithDefExecutor("CREATE TEMPORARY TABLE ");
-		sqlExecutionHelper.addPatternWithDefExecutor("DROP TABLE ");
-		sqlExecutionHelper.addPatternWithDefExecutor("DROP INDEX ");
+		sqlExecutionHelper.addDMLUpdatePatterns(scalarExecutor);
+		sqlExecutionHelper.addPattern("CREATE UNIQUE INDEX ", scalarExecutor);
+		sqlExecutionHelper.addPattern("CREATE TEMPORARY TABLE ", scalarExecutor);
+		sqlExecutionHelper.addPattern("DROP TABLE ", scalarExecutor);
+		sqlExecutionHelper.addPattern("DROP INDEX ", scalarExecutor);
 		sqlExecutionHelper.addTransactionalPattern();
-		sqlExecutionHelper.addParametrizedInsertPattern();
-		sqlExecutionHelper.addSetVarPattern();
 
-		sqlExecutionHelper.addRecordBinder("worker", new WorkersBinder());
-		sqlExecutionHelper.addRecordBinder("client", new ClientsBinder());
-		sqlExecutionHelper.addRecordBinder("project", new ProjectsBinder());
-		sqlExecutionHelper.addRecordBinder("proj_worker_name", new ProjWorkerNameBinder());
-
+		sqlExecutionHelper.addPattern(ParametrizedInsertExecutor.strPattern,
+						"(INSERT INTO)|(DELETE FROM )|(CREATE )|(BEGIN)",
+									paramInsertExecutor);
+		sqlExecutionHelper.addPattern("SET @[a-zA-Z_]+ = ",
+						"(INSERT INTO)|(DELETE FROM )|(CREATE )|(BEGIN)",
+									setVarExecutor);
 		try {
 			sqlExecutionHelper.loadAndExecute("sql/populate_db.sql");
 

@@ -1,4 +1,4 @@
-package com.goit.fry.transactions.ex;
+package com.goit.fry.transactions.executors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +14,7 @@ public class SetVarExecutor extends ScalarExecutor{
 
 	private static final Logger logger = LogManager.getRootLogger();
 	private static final HashMap<String, String> vars = new HashMap<>();
-	private static final Pattern pattern_var_name = Pattern.compile("SET (@[a-zA-Z_]+) = \\(([^)]+)\\)");
+	private static final Pattern patternVarName = Pattern.compile("SET (@[a-zA-Z_]+) = \\(([^)]+)\\)");
 
 	public static String getVariable(String name) {
 
@@ -24,7 +24,7 @@ public class SetVarExecutor extends ScalarExecutor{
 	@Override
 	public void execute(String command) throws SQLException {
 
-		Matcher m = pattern_var_name.matcher(command);
+		Matcher m = patternVarName.matcher(command);
 		if (!m.find())
 			throw new SQLException("wrong variable name: " + command);
 

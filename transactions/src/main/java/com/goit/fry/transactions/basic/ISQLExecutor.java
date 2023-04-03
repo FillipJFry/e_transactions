@@ -1,7 +1,6 @@
-package com.goit.fry.transactions.ex;
+package com.goit.fry.transactions.basic;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 public interface ISQLExecutor {
 

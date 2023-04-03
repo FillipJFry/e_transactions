@@ -1,4 +1,4 @@
-package com.goit.fry.transactions.ex;
+package com.goit.fry.transactions.basic;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,14 +48,14 @@ public class SimpleSQLFileParser {
 		Map.Entry<String, PatternItem> data = findLineMatchingPattern(reader);
 		if (data == null) return null;
 		String line = data.getKey();
-		Pattern pattern_exclude =  data.getValue().pattern_exclude;
+		Pattern patternExcl =  data.getValue().patternExcl;
 
 		StringBuilder sqlCommand = new StringBuilder();
 		sqlCommand.append(line);
 		addSpaceIfNecessary(sqlCommand, line);
 
 		Matcher mEol = sqlCmdEol.matcher(line);
-		Matcher mExcl = pattern_exclude != null ? pattern_exclude.matcher(line) : null;
+		Matcher mExcl = patternExcl != null ? patternExcl.matcher(line) : null;
 		int row = 0;
 		boolean exclFound;
 		while (!(exclFound = mExcl != null && mExcl.find() &&
@@ -74,7 +74,7 @@ public class SimpleSQLFileParser {
 			throw new Exception("no semicolon at the end: " + sqlCommand);
 		if (exclFound)
 				throw new Exception("wrong SQL-command: " +
-					sqlCommand + line + ". Probably semicolon is missing");
+								sqlCommand + line + ". Probably semicolon is missing");
 
 		return new SQLCommandData(sqlCommand.toString(), data.getValue().pattern,
 								data.getValue().executor);
@@ -120,21 +120,21 @@ public class SimpleSQLFileParser {
 
 		if (line.length() == 0) return;
 
-		char line_end = line.charAt(line.length() - 1);
-		if (line_end != ';' && line_end != ' ')
+		char lineEnd = line.charAt(line.length() - 1);
+		if (lineEnd != ';' && lineEnd != ' ')
 			sqlCommand.append(' ');
 	}
 
 	private static final class PatternItem {
 
 		final Pattern pattern;
-		Pattern pattern_exclude;
+		Pattern patternExcl;
 		ISQLExecutor executor;
 
-		PatternItem(Pattern pattern, Pattern pattern_exclude, ISQLExecutor executor) {
+		PatternItem(Pattern pattern, Pattern patternExcl, ISQLExecutor executor) {
 
 			this.pattern = pattern;
-			this.pattern_exclude = pattern_exclude;
+			this.patternExcl = patternExcl;
 			this.executor = executor;
 		}
 	}

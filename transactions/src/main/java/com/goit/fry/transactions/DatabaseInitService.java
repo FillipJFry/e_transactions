@@ -2,7 +2,7 @@ package com.goit.fry.transactions;
 
 import java.util.List;
 
-import com.goit.fry.transactions.ex.SQLExecutionHelper;
+import com.goit.fry.transactions.basic.SQLExecutionHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

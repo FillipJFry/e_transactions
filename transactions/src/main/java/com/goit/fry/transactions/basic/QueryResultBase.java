@@ -1,4 +1,4 @@
-package com.goit.fry.transactions.ex;
+package com.goit.fry.transactions.basic;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,6 +1,6 @@
 package com.goit.fry.transactions.binders;
 
-import com.goit.fry.transactions.ex.IRecordBinder;
+import com.goit.fry.transactions.basic.IRecordBinder;
 
 import java.math.BigDecimal;
 import java.sql.Date;
